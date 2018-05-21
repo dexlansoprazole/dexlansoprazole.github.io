@@ -207,7 +207,7 @@ $(document).ready(function() {
         state = {time: 0, ready: new Array(), waiting: new Array(), running: new Array(), exit: new Array()};
         limit = 0;
         time = 0;
-        var lines = rawText.split("\r\n");
+        var lines = rawText.split("\n");
         var processes = new Array();
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].split(" ");

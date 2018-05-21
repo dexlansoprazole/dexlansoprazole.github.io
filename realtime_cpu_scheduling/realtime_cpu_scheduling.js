@@ -75,7 +75,7 @@ $(document).ready(function() {
     function loadData(rawText) {
         processes = new Array();
         period = -1;
-        var lines = rawText.split("\r\n");
+        var lines = rawText.split("\n");
         for (let i = 0; i < lines.length; i++) {
             let process = new Array();
             const line = lines[i].split(" ");
