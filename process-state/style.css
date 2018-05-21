@@ -1,0 +1,70 @@
+html, body{
+    padding: 0px;
+    margin: 0px;
+    height:100%;
+}
+
+body{
+    padding-bottom: 70px;
+}
+
+.container{
+    height:85%;
+}
+
+.custom-file-input{
+    cursor: pointer;
+}
+
+#container-ps{
+    height: 100%;
+}
+
+.card-state{
+    height: 100%;
+    
+}
+
+.container-state{
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.container-state .card-title{
+    margin-top: 1rem;
+}
+
+.card-info{
+    height: 100%;
+    margin-left: 1rem;
+}
+
+.card-info .card-title{
+    margin: auto 1rem auto 1rem;
+}
+
+.process{
+    margin: 0.5rem;
+    height: 5rem;
+    min-height: 3rem;
+}
+
+.row{
+    margin-top: 1rem;
+}
+
+#state-ready .process{
+    background-color: #84e19a
+}
+
+#state-waiting .process{
+    background-color: #ffd966
+}
+
+#state-running .process{
+    background-color: #66b0ff
+}
+
+#state-exit .process{
+    background-color: #abb3ba
+}
