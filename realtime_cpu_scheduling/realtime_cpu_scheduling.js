@@ -1,6 +1,8 @@
 $(document).ready(function() {
     processes = new Array();
-    var period = -1;
+    period = -1;
+    inputFile = NaN;
+
     window.onresize = function(evt) {
         if (period > 0) {
             //Update X-axis
@@ -19,36 +21,42 @@ $(document).ready(function() {
                 return "translate(" + margin + ", 0)";
             });
         }
-        
     };
 
     $('#btnRead').on('click', function() {
-        if (!$('#btnRead').hasClass('disabled')) {
-            var inputFile = $('.custom-file-input').prop('files');
-            if (inputFile[0]) {
-                let reader = new FileReader();
-                reader.readAsText(inputFile[0], "UTF-8");
-                reader.onload = handleFile;
-                $('#btnSchedule').removeClass('disabled');
+        $('#btnSchedule').addClass('disabled');
+        refreshUI();
+        if (inputFile[0]) {
+            let reader = new FileReader();
+            reader.readAsText(inputFile[0], "UTF-8");
+            reader.onload = handleFile;
+        }
+        else {      //Read default input
+            var rawFile = new XMLHttpRequest();
+            rawFile.open("GET", 'input_default.txt');
+            rawFile.onreadystatechange = function() {
+                if (rawFile.readyState === 4) {
+                    if (rawFile.status === 200 || rawFile.status == 0) {
+                        fileString = rawFile.responseText;
+                        loadData(fileString);
+                    }
+                }
             }
+            rawFile.send();
         }
     });
 
     $('#inputFile').on('change', (function() {
-        var inputFile = $('.custom-file-input').prop('files');
-        if (inputFile[0]) {
-            $('#btnRead').removeClass('disabled');
-            $('.custom-file-label').html(inputFile[0].name);
-        }
-        else {
-            $('#btnRead').addClass('disabled');
-            $('#btnSchedule').addClass('disabled');
-        }
+        if ($('#inputFile').prop('files')[0])
+            inputFile = $('#inputFile').prop('files');
+        if (inputFile[0])
+            $('#inputFile-label').html(inputFile[0].name);
     }));
 
     $('#btnSchedule').on('click', function() {
         if (!$('#btnSchedule').hasClass('disabled')) {
             refreshUI();
+            $("#card-period-title").html('Period: ' + period);
             generateAxisX();
             schedule(0);
             schedule(1);
@@ -59,9 +67,22 @@ $(document).ready(function() {
 
     function handleFile(evt) {
         var fileString = evt.target.result;
-        console.log(fileString);
-        data = formatData(fileString);
-        processes = data.processes;
+        loadData(fileString);
+    }
+
+    function loadData(rawText) {
+        processes = new Array();
+        period = -1;
+        var lines = rawText.split("\r\n");
+        for (let i = 0; i < lines.length; i++) {
+            let process = new Array();
+            const line = lines[i].split(" ");
+            process.push(line[0]);
+            for (let j = 1; j < 4; j++)
+                process.push(parseInt(line[j].split(":")[1]));
+            processes.push(process);
+        }
+
         //Get period
         period = -1
         p = 0;
@@ -75,25 +96,13 @@ $(document).ready(function() {
         //Update UI
         var $cardPeriod = $("#card-period-title");
         $cardPeriod.html('Period: ' + period);
-        refreshUI();
         generateAxisX();
         console.log("Period:\n\t" + period);
-    }
 
-    function formatData(rawText) {
-        var data = new Object();
-        var lines = rawText.split("\r\n");
-        var processes = new Array();
-        for (let i = 0; i < lines.length; i++) {
-            let process = new Array();
-            const line = lines[i].split(" ");
-            process.push(line[0]);
-            for (let j = 1; j < 4; j++)
-                process.push(parseInt(line[j].split(":")[1]));
-            processes.push(process);
+        //Check data
+        if (period >= 0 && processes.length > 0) {
+            $('#btnSchedule').removeClass('disabled');
         }
-        data.processes = processes;
-        return data;
     }
 
     function schedule(mode) {
@@ -322,6 +331,7 @@ $(document).ready(function() {
     }
 
     function refreshUI() {
+        $("#card-period-title").html("Period: 0");
         $('.progress-bar').remove();
         $('.g-MD').remove();
         $('.badge').remove();
