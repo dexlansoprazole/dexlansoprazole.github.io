@@ -1,7 +1,7 @@
 $(document).ready(function() {
-    processes = new Array();
-    period = -1;
-    inputFile = NaN;
+    var processes = new Array();
+    var period = -1;
+    var inputFile = NaN;
 
     window.onresize = function(evt) {
         if (period > 0) {
@@ -37,7 +37,7 @@ $(document).ready(function() {
             rawFile.onreadystatechange = function() {
                 if (rawFile.readyState === 4) {
                     if (rawFile.status === 200 || rawFile.status == 0) {
-                        fileString = rawFile.responseText;
+                        let fileString = rawFile.responseText;
                         console.log(fileString);
                         loadData(fileString);
                     }
@@ -86,8 +86,7 @@ $(document).ready(function() {
         }
 
         //Get period
-        period = -1
-        p = 0;
+        var p = 0;
         processes.forEach(function(process) {
             process.push(shadeBlendConvert(p, "#007bff", "#DC3545"));
             if (process[2] > period)
