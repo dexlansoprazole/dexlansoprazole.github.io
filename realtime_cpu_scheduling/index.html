@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Realtime CPU Scheduling</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h1>Realtime CPU Scheduling</h1>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="inputFile">
+                        <label class="custom-file-label">Choose file</label>
+                    </div>
+                    <div class="input-group-append">
+                        <button id="btnRead" class="btn btn-outline-secondary disabled" type="button">Read</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-primary disabled" id="btnSchedule">Schedule</button>
+                
+                <div class="card text-center float-right card-info" id="card-period">
+                    <h5 class="card-title" id="card-period-title">Period: 0</h5>
+                </div>
+            </div>
+        </div>
+
+        <h4>Priority-based Scheduling</h4>
+        <div class="row row-sched">
+            <div class="col col-sched" id="col-pb">
+                <div class="tagMD" id="tagMD-pb">
+                    <svg class="svg-MD" id="svg-MD-pb" width="100%" height="28"></svg>
+                </div>
+                <div class="progress border border-dark" id="progress-pb" style="height: 2rem;"></div>
+                <div class="axisX" id="axisX-pb"></div>
+                <h6>Miss Deadline:
+                    <span id="span-missDeadline-pb"></span>
+                </h6>
+            </div>
+        </div>
+
+        <h4>Rate Monotonic Scheduling</h4>
+        <div class="row row-sched">
+            <div class="col col-sched" id="col-rm">
+                <div class="tagMD" id="tagMD-rm">
+                    <svg class="svg-MD" id="svg-MD-rm" width="100%" height="28"></svg>
+                </div>
+                <div class="progress border border-dark" id="progress-rm" style="height: 2rem;"></div>
+                <div class="axisX" id="axisX-rm"></div>
+                <h6>Miss Deadline:
+                    <span id="span-missDeadline-rm"></span>
+                </h6>
+            </div>
+        </div>
+
+        <h4>Earliest Deadline First Scheduling (EDF)</h4>
+        <div class="row row-sched">
+            <div class="col col-sched" id="col-edf">
+                <div class="tagMD" id="tagMD-edf">
+                    <svg class="svg-MD" id="svg-MD-edf" width="100%" height="28"></svg>
+                </div>
+                <div class="progress border border-dark" id="progress-edf" style="height: 2rem;"></div>
+                <div class="axisX" id="axisX-edf"></div>
+                <h6>Miss Deadline:
+                    <span id="span-missDeadline-edf"></span>
+                </h6>
+            </div>
+        </div>
+    </div>
+
+    <!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>-->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="realtime_cpu_scheduling.js"></script>
+</body>
+</html>
