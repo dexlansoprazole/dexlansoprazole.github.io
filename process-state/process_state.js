@@ -11,7 +11,7 @@ $(document).ready(function() {
         }
         else {      //Read default input
             let rawFile = new XMLHttpRequest();
-            rawFile.open("GET", 'input_default.txt');
+            rawFile.open("GET", './input_default.txt');
             rawFile.onreadystatechange = function() {
                 if (rawFile.readyState === 4) {
                     if (rawFile.status === 200 || rawFile.status == 0) {
