@@ -32,7 +32,7 @@ $(document).ready(function() {
             reader.onload = handleFile;
         }
         else {      //Read default input
-            var rawFile = new XMLHttpRequest();
+            let rawFile = new XMLHttpRequest();
             rawFile.open("GET", 'input_default.txt');
             rawFile.onreadystatechange = function() {
                 if (rawFile.readyState === 4) {
@@ -67,6 +67,7 @@ $(document).ready(function() {
 
     function handleFile(evt) {
         var fileString = evt.target.result;
+        console.log(fileString);
         loadData(fileString);
     }
 

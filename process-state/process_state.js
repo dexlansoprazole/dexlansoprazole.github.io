@@ -1,27 +1,34 @@
 $(document).ready(function() {
     var limit, time = 0;
     var state;
+    var inputFile = NaN;
     
     $('#btnRead').on('click', function() {
-        var inputFile = $('.custom-file-input').prop('files');
         if (inputFile[0]) {
-            state = {time: 0, ready: new Array(), waiting: new Array(), running: new Array(), exit: new Array()};
-            limit = 0;
-            time = 0;
-            var reader = new FileReader();
+            let reader = new FileReader();
             reader.readAsText(inputFile[0], "UTF-8");
             reader.onload = handleFile;
+        }
+        else {      //Read default input
+            let rawFile = new XMLHttpRequest();
+            rawFile.open("GET", 'input_default.txt');
+            rawFile.onreadystatechange = function() {
+                if (rawFile.readyState === 4) {
+                    if (rawFile.status === 200 || rawFile.status == 0) {
+                        fileString = rawFile.responseText;
+                        loadData(fileString);
+                    }
+                }
+            }
+            rawFile.send();
         }
     });
 
     $('#inputFile').on('change', (function() {
-        var inputFile = $('.custom-file-input').prop('files');
-        if (inputFile[0]) {
-            $('#btnRead').removeClass('disabled');
-            $('.custom-file-label').html(inputFile[0].name);
-        }
-        else    
-            $('#btnRead').addClass('disabled');
+        if ($('#inputFile').prop('files')[0])
+            inputFile = $('#inputFile').prop('files');
+        if (inputFile[0])
+            $('#inputFile-label').html(inputFile[0].name);
     }));
 
     $('#btnStep').on('click', function() {
@@ -195,10 +202,12 @@ $(document).ready(function() {
         
     }
 
-    function formatData(rawText) {
-        var data = new Object();
+    function loadData(rawText) {
+        state = {time: 0, ready: new Array(), waiting: new Array(), running: new Array(), exit: new Array()};
+        limit = 0;
+        time = 0;
         var lines = rawText.split("\r\n");
-        var limit, processes = new Array();
+        var processes = new Array();
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i].split(" ");
             if (i == 0)
@@ -206,19 +215,16 @@ $(document).ready(function() {
             else
                 processes.push(line);
         }
-        data.limit = limit;
-        data.processes = processes;
-        return data;
-    }
+        state.ready = processes;
 
-    function handleFile(evt) {
-        let fileString = evt.target.result;
-        console.log(fileString);
-        data = formatData(fileString);
-        limit = data.limit;
-        state.ready = data.processes;
         dispatch();
         showLog();
         updateUI();
+    }
+
+    function handleFile(evt) {
+        var fileString = evt.target.result;
+        console.log(fileString);
+        loadData(fileString);
     }
 });
