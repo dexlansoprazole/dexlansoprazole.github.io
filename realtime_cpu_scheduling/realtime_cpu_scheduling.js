@@ -38,6 +38,7 @@ $(document).ready(function() {
                 if (rawFile.readyState === 4) {
                     if (rawFile.status === 200 || rawFile.status == 0) {
                         fileString = rawFile.responseText;
+                        console.log(fileString);
                         loadData(fileString);
                     }
                 }
