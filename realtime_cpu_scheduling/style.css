@@ -2,6 +2,7 @@ html, body{
     padding: 0px;
     margin: 0px;
     height: 100%;
+    overflow: auto;
 }
 
 body{
@@ -9,7 +10,7 @@ body{
 }
 
 .container{
-    height:85%;
+    height: 85%;
     padding: 0px;
 }
 
@@ -50,7 +51,7 @@ h6{
 }
 
 h4{
-    margin-top: 4rem;
+    margin-top: 2rem;
 }
 
 .row-sched{
@@ -59,6 +60,10 @@ h4{
 
 .col{
     padding: 0px;
+}
+
+.col-sched{
+    margin-bottom: 3rem;
 }
 
 .bs-tooltip-right{
