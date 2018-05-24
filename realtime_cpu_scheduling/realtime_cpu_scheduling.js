@@ -1,6 +1,7 @@
 $(document).ready(function() {
     var processes = new Array();
     var period = -1;
+    var process_pre_n = NaN;  //Previous dispatched process name
     var inputFile = NaN;
 
     window.onresize = function(evt) {
@@ -33,7 +34,7 @@ $(document).ready(function() {
         }
         else {      //Read default input
             let rawFile = new XMLHttpRequest();
-            rawFile.open("GET", './input_default.txt');
+            rawFile.open("GET", './test1.txt');
             rawFile.onreadystatechange = function() {
                 if (rawFile.readyState === 4) {
                     if (rawFile.status === 200 || rawFile.status == 0) {
@@ -135,7 +136,7 @@ $(document).ready(function() {
                 $spanMissDeadline = $("#span-missDeadline-edf");
                 break;
         }
-        
+
         var ps = arrayCopy2D(processes).sort(function(a, b) {
             return a[2] - b[2];
         });
@@ -145,6 +146,7 @@ $(document).ready(function() {
         do {
             //Dispatch
             var process = dispatch(ps, time);
+            process_pre_n = process[0];
 
             //Idle process
             if (process.length <= 0) {
@@ -154,48 +156,90 @@ $(document).ready(function() {
             var time_next = time + process[1]
 
             //Check deadline
-            var isMD = false;
-            var isEnd = false;
+            var isMD = false;   //Is miss deadline
+            var isFD = true;    //Is first deadline
+            var isOD = true;    //Is over deadline
             for (let i = 0; i < ps.length; i++) {
                 var proc = ps[i];
 
-                //Check deadline
+                //Check over deadline
                 if (time_next >= proc[2]) {
-                    time_next = proc[2];
+                    
+                    //Get deadlines past
+                    var pds = new Array();
+                    ps.forEach(function(pd) {
+                        if (time_next >= pd[2]) {
+                            pds.push(pd);
+                        }
+                    });
+                    var time_next = pds[0][2]
 
-                    //Check end
-                    // if (time_next == period && process[3] < 0) {
-                    //     isEnd = true;
-                    //     break;
-                    // }
+                    for (let j = 0; j < pds.length; j++) {
 
-                    //Check miss deadline
-                    if (proc[1] != 0) {
-                        proc[1] = 0;
-                        md.push(proc);
-                        ps.splice(i, 1);
-                        isMD = true;
-                    }
-                    else {
-                        let proc_o = processes.find(function(p) {
-                            return p[0] == proc[0];
-                        });
-                        proc[1] = proc_o[1];
-                        proc[2] += proc_o[2];
-                        ps.sort(function(a, b) {
-                            return a[2] - b[2];
-                        });
-                        if (dispatch(ps, time)[0] == process[0]) {
-                            time_next = time + process[1];
+                        //Check over deadline
+                        var procd = pds[j];
+                        if (procd[2] <= time_next) {
+                            
+                            //Deadline = dispatched process => run first
+                            if (procd[0] == process[0]) {
+                                process[1] -= (time_next - time);
+                            }
+
+                            //Check miss deadline
+                            if (procd[1] > 0) {
+                                if (isFD || procd[0] == process[0]) {
+                                    procd[1] = 0;
+                                    md.push(procd);
+                                    ps.splice(i, 1);
+                                    isMD = true;
+                                }
+                                if (procd[0] == process[0])
+                                    proc = process;
+                            }
+                            else if (isFD || procd[2] == time_next) {
+                                //Update deadline and progress
+                                var proc_o = processes.find(function(p) {
+                                    return p[0] == procd[0];
+                                });
+                                procd[1] = proc_o[1];
+                                procd[2] += proc_o[2];
+                                ps.sort(function(a, b) {
+                                    return a[2] - b[2];
+                                });
+
+                                //Next dispatch = current => continue
+                                if (dispatch(ps, time)[0] == process[0] && procd[0] != process[0]) {
+                                    //Check not over period
+                                    if (time + process[1] <= period) {
+                                        //Check only one deadline past
+                                        if (pds.length <= 1)
+                                            time_next = time + process[1];
+                                        else if (pds[j + 1]) {
+                                            time_next = pds[j + 1][2];
+                                        }
+                                    }
+                                    else {
+                                        time_next = period;
+                                    }
+                                    
+                                    //Update missed deadline
+                                    if (process[1] - (time_next - time) > 0) {
+                                        proc = process;
+                                    }
+                                }
+                            }
+                            isFD = false;
                         }
                     }
+                    isOD = false;
                     break;
                 }
             }
-            if (isEnd)
-                break;
-            process[1] -= (time_next - time);
+
+            if (isOD || proc[0] != process[0] || pds.length > 1)
+                process[1] -= (time_next - time);
             console.log(process[0] + " " + time + "-" + time_next);
+
             if (isMD) {
                 console.log(proc[0] + ' miss deadline');
                 //UI update (tagMD)
@@ -243,7 +287,7 @@ $(document).ready(function() {
             time = time_next;
         } while (time < period)
         console.log('End');
-        
+
         var strListMD = 'None';
         $badgeMD = $('<span class="badge border border-dark text-dark" style="background-color:' + '#fff' + ';">None</span>');
         if (md.length > 0) {
@@ -253,7 +297,7 @@ $(document).ready(function() {
                 strListMD += mdp[0] + ',';
                 $badgeMD.append($('<span class="badge border border-dark text-light" style="background-color:' + mdp[4] + ';">' + mdp[0] + '</span>'));
             });
-            strListMD = strListMD.substring(0, strListMD.length-1);
+            strListMD = strListMD.substring(0, strListMD.length - 1);
         }
         $spanMissDeadline.append($badgeMD);
         console.log('Miss deadline: ' + strListMD + "\n\n");
@@ -261,10 +305,12 @@ $(document).ready(function() {
 
     function dispatch_pb(ps) {
         var process = new Array();
-        var prd = -1;
+        var pr = -1;   //Priority
+
+        //Dispatch
         ps.forEach(function(proc) {
-            if (proc[3] > prd && proc[1] > 0) {
-                prd = proc[3];
+            if (proc[3] > pr && proc[1] > 0) {
+                pr = proc[3];
                 process = proc;
             }
         });
@@ -273,7 +319,9 @@ $(document).ready(function() {
 
     function dispatch_rm(ps) {
         var process = new Array();
-        var dl = period + 1;
+        var dl = period + 1;    //Deadline
+
+        //Dispatch
         for (let i = 0; i < processes.length; i++) {
             let proc = ps.find(function(p) {
                 return p[0] == processes[i][0];
@@ -289,15 +337,36 @@ $(document).ready(function() {
 
     function dispatch_edf(ps, time) {
         var process = new Array();
-        var pd = period + 1;
+        var pd = period + 1;    //Process deadline distance
+        var cpe = 0;    //Count processes whitch deadline distance equal to pd
+
+        //Dispatch
         ps.forEach(function(proc) {
             if (proc[2] - time < pd && proc[1] > 0) {
                 pd = proc[2] - time;
                 process = proc;
             }
         });
+
+        //Count cpe
+        ps.forEach(function(proc) {
+            if (proc[2] - time == pd && proc[1] > 0) {
+                cpe++;
+            }
+        });
+
+        //cpe > 1 => return previous dispatched process
+        if (cpe > 1 && process_pre_n != NaN) {
+            //Get previous dispatched process
+            var pp = ps.find(function(p) {
+                return p[0] == process_pre_n;
+            });
+            if (pp[1] > 0)
+                return pp;
+        }
         return process;
     }
+
 
     function arrayCopy2D(target) {
         var ret = new Array();
